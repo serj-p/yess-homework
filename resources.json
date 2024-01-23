@@ -1,0 +1,49 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "UserPoolName": {
+      "Type": "String",
+      "Description": "The name of the User Pool",
+      "Default": "yess_user_pool_dev"
+    },
+    "FileStorageBucketName": {
+      "Type": "String",
+      "Description": "The name of file storage bucket",
+      "Default": "yess-storage-bucket-dev"
+    }
+  },
+  "Resources": {
+    "UserPoolNameParameter": {
+      "Type": "AWS::SSM::Parameter",
+      "Properties": {
+        "Name": "UserPoolNameSSM",
+        "Type": "String",
+        "Value": { "Ref": "UserPoolName" }
+      }
+    },
+    "UserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "UserPoolName": { "Ref": "UserPoolName" },
+        "UsernameAttributes": ["email"],
+        "AutoVerifiedAttributes": ["email"]
+      }
+    },
+    "FileStorageBucketNameParameter": {
+      "Type": "AWS::SSM::Parameter",
+      "Properties": {
+        "Name": "FileStorageBucketNameSSM",
+        "Type": "String",
+        "Value": { "Ref": "FileStorageBucketName" }
+      }
+    },
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Ref": "FileStorageBucketName" },
+        "AccessControl": "Private"
+      }
+    }
+  }
+}
+

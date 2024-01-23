@@ -1,0 +1,43 @@
+The project is a simple file sharing service(part of it).
+It allows users to upload files and share them with other users.
+
+TECHNOLOGIES:
+	The service is built on top of AWS Lambda, Amazon API Gateway, Amazon S3, Amazon Cognito, and AWS SAM. The service is available through REST API.
+	The web backend is AWS native Chalice framework. The last one has some nice features like automatic API doc generation and some
+	integration with AWS SAM however it's very limited and anyways user ends up crating cloudformation template if he/she wants to follow IaC approach.
+
+The FLOW I chose is Document Sharing and Permissions.
+	The app also supports storage system and some bit of identity management, also it uses JWT tokens to authenticate users.
+	The auth backend is AWS Cognito.
+
+	The implementation is relying on s3 tags to store permissions to let users to share files between users, with orgs and with spaces(safe zone).
+	All mentioned entities implement Identifiable interface.
+	The app has some unittests and e2e tests.
+
+IN ORDER TO RUN THE APP:
+	run ./deploy.sh script.
+
+Design limitations:
+	1. the app was created with support of dev env and prod env in mind, but at the moment it is dev env only.
+	2. app availability and scalability are given by serverless model scalability and availability(very high). The downside is cold start time
+	which for this type of application is negligible. The other concern may be the cost, which may be higher compared to traditional approach.
+	3. operation of checking permissions via metadata is not atomic with file update with corresponding consequences. if automation heavily uses
+	it to update files consequences may show up.
+	4. the design for Spaces is adding a user to a group representing space in Cognito. This may be more dynamic than adding user to a Organization(once per lifetime).
+	thus if user gets 403 when trying to access a document he/she has permission through Space permission in Cognito, there's a need to refresh a jwt token as group
+	membership is stored in it.
+	5. S3 itself is eventually consistent when talking about object update and delete, thus simultaneous altering operations may lead to unexpected results.
+	   on other hand s3 is replicated across multiple AZs and regions, thus it's highly available and durable.
+
+
+Best practices and patterns:
+	1. built on top of fully managed infrastructure
+	2. IaC
+	3. DDD
+	4. OOP
+	5. SOLID
+	6. TDD
+	7. Usage of SSM Parameter Store to pass parameters from cloudformation template
+	8. few fabric methods in storage.domain.permissions.py
+	9. dependency injection on web_service level. too few business models to show the DI between them on scale,
+		ask me to show how it looks on my current project if interested.
